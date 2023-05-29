@@ -125,34 +125,36 @@ function useBLE(): BluetoothLowEnergyApi {
     }
   };
 
+  let sensorData = "";
+
   const onHeartRateUpdate = (
     error: BleError | null,
     characteristic: Characteristic | null
   ) => {
     if (error) {
       console.log(error);
-      return -1;
+      return;
     } else if (!characteristic?.value) {
-      console.log("No Data was recieved");
-      return -1;
+      console.log("No Data was received");
+      return;
     }
 
-    const rawData = base64.decode(characteristic.value);
-    console.log("Raw Data : ", rawData);
+    const chunk = base64.decode(characteristic.value);
+    console.log("Received chunk: ", chunk);
 
-    let innerHeartRate: number = -1;
+    // Append the received chunk to the sensor data string
+    sensorData += chunk;
 
-    const firstBitValue: number = Number(rawData) & 0x01;
+    // If the chunk is smaller than the maximum chunk size, it's the last chunk
+    if (chunk.length < 20) {
+      console.log("Full sensor data: ", sensorData);
 
-    if (firstBitValue === 0) {
-      innerHeartRate = rawData[1].charCodeAt(0);
-    } else {
-      innerHeartRate =
-        Number(rawData[1].charCodeAt(0) << 8) +
-        Number(rawData[2].charCodeAt(2));
+      // Process the full sensor data string here
+      // ...
+
+      // Reset the sensor data string for the next set of chunks
+      sensorData = "";
     }
-
-    setHeartRate(innerHeartRate);
   };
 
   const startStreamingData = async (device: Device) => {

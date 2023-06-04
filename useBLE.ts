@@ -11,9 +11,14 @@ import {
 import * as ExpoDevice from "expo-device";
 
 import base64 from "react-native-base64";
+import firestore from "@react-native-firebase/firestore";
 
 const HEART_RATE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
 const HEART_RATE_CHARACTERISTIC = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+
+interface SensorData {
+  [key: string]: number;
+}
 
 interface BluetoothLowEnergyApi {
   requestPermissions(): Promise<boolean>;
@@ -23,6 +28,7 @@ interface BluetoothLowEnergyApi {
   connectedDevice: Device | null;
   allDevices: Device[];
   heartRate: number;
+  sensorData: SensorData;
 }
 
 function useBLE(): BluetoothLowEnergyApi {
@@ -30,6 +36,7 @@ function useBLE(): BluetoothLowEnergyApi {
   const [allDevices, setAllDevices] = useState<Device[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [heartRate, setHeartRate] = useState<number>(0);
+  const [sensorData, setSensorData] = useState<SensorData>({});
 
   const requestAndroid31Permissions = async () => {
     const bluetoothScanPermission = await PermissionsAndroid.request(
@@ -125,7 +132,8 @@ function useBLE(): BluetoothLowEnergyApi {
     }
   };
 
-  let sensorData = "";
+  let sensorDataJson: Record<string, number> = {};
+  let isReceivingData = false;
 
   const onHeartRateUpdate = (
     error: BleError | null,
@@ -142,18 +150,25 @@ function useBLE(): BluetoothLowEnergyApi {
     const chunk = base64.decode(characteristic.value);
     console.log("Received chunk: ", chunk);
 
-    // Append the received chunk to the sensor data string
-    sensorData += chunk;
+    if (chunk === "START") {
+      // Start receiving data
+      isReceivingData = true;
+      sensorDataJson = {};
+    } else if (chunk === "STOP") {
+      // Stop receiving data
+      isReceivingData = false;
 
-    // If the chunk is smaller than the maximum chunk size, it's the last chunk
-    if (chunk.length < 20) {
-      console.log("Full sensor data: ", sensorData);
-
-      // Process the full sensor data string here
-      // ...
-
-      // Reset the sensor data string for the next set of chunks
-      sensorData = "";
+      // Send sensor data to Firestore
+      firestore()
+        .collection("sensorData")
+        .add(sensorDataJson)
+        .then(() => console.log("Data sent to Firestore"));
+    } else if (isReceivingData) {
+      // Process the sensor data
+      const [sensorName, sensorValue] = chunk.split(" = ");
+      if (sensorName && sensorValue) {
+        sensorDataJson[sensorName] = parseFloat(sensorValue);
+      }
     }
   };
 
@@ -177,6 +192,7 @@ function useBLE(): BluetoothLowEnergyApi {
     connectedDevice,
     disconnectFromDevice,
     heartRate,
+    sensorData,
   };
 }
 

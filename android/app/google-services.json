@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "495714489649",
+    "project_id": "wearabledatacollection",
+    "storage_bucket": "wearabledatacollection.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:495714489649:android:ab2612b0bf430a79becc10",
+        "android_client_info": {
+          "package_name": "com.anonymous.blewearable"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "495714489649-p2fk7g23bdi4fo1skq5vnmkog5d46von.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEn6kqcGjoluCfOkWNBc_sGNDc7kk4dr4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "495714489649-p2fk7g23bdi4fo1skq5vnmkog5d46von.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:495714489649:android:7bba9d9ef74e8a0ebecc10",
+        "android_client_info": {
+          "package_name": "com.wearabledatacollection"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "495714489649-p2fk7g23bdi4fo1skq5vnmkog5d46von.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEn6kqcGjoluCfOkWNBc_sGNDc7kk4dr4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "495714489649-p2fk7g23bdi4fo1skq5vnmkog5d46von.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@config-plugins/react-native-ble-plx": "^6.0.0",
+    "@react-native-firebase/app": "^17.5.0",
+    "@react-native-firebase/firestore": "^17.5.0",
     "@shopify/react-native-skia": "0.1.172",
     "eas-cli": "^3.13.0",
     "expo": "~48.0.15",

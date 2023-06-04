@@ -7,7 +7,7 @@ import {
   Characteristic,
   Device,
 } from "react-native-ble-plx";
-
+import Geolocation from "react-native-geolocation-service";
 import * as ExpoDevice from "expo-device";
 
 import base64 from "react-native-base64";
@@ -30,6 +30,16 @@ interface BluetoothLowEnergyApi {
   heartRate: number;
   sensorData: SensorData;
 }
+
+Geolocation.getCurrentPosition(
+  (position) => {
+    console.log(position);
+  },
+  (error) => {
+    console.log(error.code, error.message);
+  },
+  { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+);
 
 function useBLE(): BluetoothLowEnergyApi {
   const bleManager = useMemo(() => new BleManager(), []);
@@ -132,7 +142,7 @@ function useBLE(): BluetoothLowEnergyApi {
     }
   };
 
-  let sensorDataJson: Record<string, number> = {};
+  let sensorDataJson: Record<string, string> = {};
   let isReceivingData = false;
 
   const onHeartRateUpdate = (
@@ -157,17 +167,29 @@ function useBLE(): BluetoothLowEnergyApi {
     } else if (chunk === "STOP") {
       // Stop receiving data
       isReceivingData = false;
+      Geolocation.getCurrentPosition(
+        (position) => {
+          sensorDataJson.latitude = position.coords.latitude.toString();
+          sensorDataJson.longitude = position.coords.longitude.toString();
+          sensorDataJson.timestamp = position.timestamp.toString();
+          console.log(sensorDataJson);
 
-      // Send sensor data to Firestore
-      firestore()
-        .collection("sensorData")
-        .add(sensorDataJson)
-        .then(() => console.log("Data sent to Firestore"));
+          // Send sensor data to Firestore
+          firestore()
+            .collection("sensorData")
+            .add(sensorDataJson)
+            .then(() => console.log("Data sent to Firestore"));
+        },
+        (error) => {
+          console.log(error.code, error.message);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
     } else if (isReceivingData) {
       // Process the sensor data
       const [sensorName, sensorValue] = chunk.split(" = ");
       if (sensorName && sensorValue) {
-        sensorDataJson[sensorName] = parseFloat(sensorValue);
+        sensorDataJson[sensorName] = sensorValue;
       }
     }
   };

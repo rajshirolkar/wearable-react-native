@@ -187,7 +187,7 @@ function useBLE(): BluetoothLowEnergyApi {
       );
     } else if (isReceivingData) {
       // Process the sensor data
-      const [sensorName, sensorValue] = chunk.split(" = ");
+      const [sensorName, sensorValue] = chunk.split("=");
       if (sensorName && sensorValue) {
         sensorDataJson[sensorName] = sensorValue;
       }

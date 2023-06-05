@@ -13,8 +13,8 @@ import * as ExpoDevice from "expo-device";
 import base64 from "react-native-base64";
 import firestore from "@react-native-firebase/firestore";
 
-const HEART_RATE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-const HEART_RATE_CHARACTERISTIC = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+const DATA_COLLECTOR_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+const DATA_COLLECTOR_CHARACTERISTIC = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
 interface SensorData {
   [key: string]: number;
@@ -204,8 +204,8 @@ function useBLE(): BluetoothLowEnergyApi {
   const startStreamingData = async (device: Device) => {
     if (device) {
       device.monitorCharacteristicForService(
-        HEART_RATE_UUID,
-        HEART_RATE_CHARACTERISTIC,
+        DATA_COLLECTOR_UUID,
+        DATA_COLLECTOR_CHARACTERISTIC,
         onHeartRateUpdate
       );
     } else {

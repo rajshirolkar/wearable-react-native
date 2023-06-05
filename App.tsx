@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -19,7 +19,13 @@ const App = () => {
     connectedDevice,
     heartRate,
     disconnectFromDevice,
+    sensorDataJson,
   } = useBLE();
+
+  useEffect(() => {
+    console.log("SensorData : ", sensorDataJson);
+  }, [sensorDataJson]);
+
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const scanForDevices = async () => {
@@ -44,12 +50,16 @@ const App = () => {
         {connectedDevice ? (
           <>
             <PulseIndicator />
-            <Text style={styles.heartRateTitleText}>Your Heart Rate Is:</Text>
-            <Text style={styles.heartRateText}>{heartRate} bpm</Text>
+            <Text style={styles.heartRateTitleText}>Sensor Data:</Text>
+            {Object.entries(sensorDataJson).map(([key, value]) => (
+              <Text key={key} style={styles.sensorDataText}>
+                {key}: {value}
+              </Text>
+            ))}
           </>
         ) : (
           <Text style={styles.heartRateTitleText}>
-            Please Connect to a Heart Rate Monitor
+            Please Connect to a Vaisala Wearable Device
           </Text>
         )}
       </View>
@@ -75,6 +85,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f2f2f2",
+  },
+  sensorDataText: {
+    fontSize: 20,
+    color: "black",
   },
   heartRateTitleWrapper: {
     flex: 1,

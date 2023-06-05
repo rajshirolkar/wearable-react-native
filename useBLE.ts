@@ -28,7 +28,7 @@ interface BluetoothLowEnergyApi {
   connectedDevice: Device | null;
   allDevices: Device[];
   heartRate: number;
-  sensorData: SensorData;
+  sensorDataJson: Record<string, string>;
 }
 
 Geolocation.getCurrentPosition(
@@ -47,6 +47,9 @@ function useBLE(): BluetoothLowEnergyApi {
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [heartRate, setHeartRate] = useState<number>(0);
   const [sensorData, setSensorData] = useState<SensorData>({});
+  const [sensorDataJson, setSensorDataJson] = useState<Record<string, string>>(
+    {}
+  );
 
   const requestAndroid31Permissions = async () => {
     const bluetoothScanPermission = await PermissionsAndroid.request(
@@ -142,7 +145,6 @@ function useBLE(): BluetoothLowEnergyApi {
     }
   };
 
-  let sensorDataJson: Record<string, string> = {};
   let isReceivingData = false;
 
   const onHeartRateUpdate = (
@@ -163,16 +165,18 @@ function useBLE(): BluetoothLowEnergyApi {
     if (chunk === "START") {
       // Start receiving data
       isReceivingData = true;
-      sensorDataJson = {};
+      setSensorDataJson({});
     } else if (chunk === "STOP") {
       // Stop receiving data
       isReceivingData = false;
       Geolocation.getCurrentPosition(
         (position) => {
-          sensorDataJson.latitude = position.coords.latitude.toString();
-          sensorDataJson.longitude = position.coords.longitude.toString();
-          sensorDataJson.timestamp = position.timestamp.toString();
-          console.log(sensorDataJson);
+          setSensorDataJson((prevData) => ({
+            ...prevData,
+            latitude: position.coords.latitude.toString(),
+            longitude: position.coords.longitude.toString(),
+            timestamp: position.timestamp.toString(),
+          }));
 
           // Send sensor data to Firestore
           firestore()
@@ -189,7 +193,10 @@ function useBLE(): BluetoothLowEnergyApi {
       // Process the sensor data
       const [sensorName, sensorValue] = chunk.split("=");
       if (sensorName && sensorValue) {
-        sensorDataJson[sensorName] = sensorValue;
+        setSensorDataJson((prevData) => ({
+          ...prevData,
+          [sensorName]: sensorValue,
+        }));
       }
     }
   };
@@ -214,7 +221,7 @@ function useBLE(): BluetoothLowEnergyApi {
     connectedDevice,
     disconnectFromDevice,
     heartRate,
-    sensorData,
+    sensorDataJson,
   };
 }
 

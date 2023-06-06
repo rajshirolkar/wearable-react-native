@@ -145,6 +145,8 @@ function useBLE(): BluetoothLowEnergyApi {
     }
   };
 
+  let sendToFireBaseData: Record<string, string> = {};
+
   let isReceivingData = false;
 
   const onHeartRateUpdate = (
@@ -171,6 +173,11 @@ function useBLE(): BluetoothLowEnergyApi {
       isReceivingData = false;
       Geolocation.getCurrentPosition(
         (position) => {
+          sendToFireBaseData.latitude = position.coords.latitude.toString();
+          sendToFireBaseData.longitude = position.coords.longitude.toString();
+          sendToFireBaseData.timestamp = position.timestamp.toString();
+          console.log("updatedData : ", sendToFireBaseData);
+
           setSensorDataJson((prevData) => ({
             ...prevData,
             latitude: position.coords.latitude.toString(),
@@ -181,7 +188,7 @@ function useBLE(): BluetoothLowEnergyApi {
           // Send sensor data to Firestore
           firestore()
             .collection("sensorData")
-            .add(sensorDataJson)
+            .add(sendToFireBaseData)
             .then(() => console.log("Data sent to Firestore"));
         },
         (error) => {
@@ -197,6 +204,7 @@ function useBLE(): BluetoothLowEnergyApi {
           ...prevData,
           [sensorName]: sensorValue,
         }));
+        sendToFireBaseData[sensorName] = sensorValue;
       }
     }
   };
